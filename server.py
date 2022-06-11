@@ -44,14 +44,13 @@ def demo_form_response():
 	if isValid:
 		web_app_data = parse_web_app_data(API_TOKEN, initData)
 		query_id = web_app_data["query_id"]
-		print(web_app_data['user']['id'])	# Test - 1
 		bot.answer_web_app_query(query_id, InlineQueryResultArticle(
 					id=query_id, title="VERIFICATION FAILED!",
 					input_message_content=InputTextMessageContent(
 						f"<b><i>Demo Form:\n\nName: {name}\n\nBorn: {date}\n\
 							\nEmail: {email}\n\nCountry: {country}</i></b>", parse_mode="HTML"),
 					reply_markup=InlineKeyboardMarkup().row(InlineKeyboardButton(
-						"CLICK TO CONFIRM ✅", callback_data="confirm"))))
+						"CLICK TO CONFIRM ✅", callback_data=f"confirm-{web_app_data['user']['id']}"))))
 
 	return redirect("/")
 
