@@ -1,0 +1,4 @@
+Flask==2.0.2
+gunicorn==20.1.0
+Flask-MySQL==1.5.2
+pyTelegramBotAPI==4.5.1
