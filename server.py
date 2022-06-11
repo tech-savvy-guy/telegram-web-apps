@@ -50,7 +50,7 @@ def demo_form_response():
 						f"<b><i>Demo Form:\n\nName: {name}\n\nBorn: {date}\n\
 							\nEmail: {email}\n\nCountry: {country}</i></b>", parse_mode="HTML"),
 					reply_markup=InlineKeyboardMarkup().row(InlineKeyboardButton(
-						"CLICK TO CONFIRM ✅", callback_data=f"confirm-{web_app_data['user']['id']}"))))
+						"CLICK TO CONFIRM ✅", callback_data="confirm"))))
 
 	return redirect("/")
 
