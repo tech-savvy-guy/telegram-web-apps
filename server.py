@@ -48,7 +48,7 @@ def demo_form_response():
 					id=query_id, title="VERIFICATION FAILED!",
 					input_message_content=InputTextMessageContent(
 						f"<b><i>Demo Form:\n\nName: {name}\n\nBorn: {date}\n\
-							\nEmail: {email}\n\nCountry: {country}</i></b>"),
+							\nEmail: {email}\n\nCountry: {country}</i></b>", parse_mode="HTML"),
 					reply_markup=InlineKeyboardMarkup().row(InlineKeyboardButton(
 						"CLICK TO CONFIRM ✅", callback_data="confirm"))))
 
