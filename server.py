@@ -30,6 +30,11 @@ def demo_form():
 	return flask.render_template("demo-form.html")
 
 
+@app.route('/captcha')
+def captcha():
+	return flask.render_template("captcha.html")
+
+
 @app.route('/demo-form-response', methods=["POST"])
 def demo_form_response():
 	raw_data = request.json
@@ -53,6 +58,43 @@ def demo_form_response():
 						"CLICK TO CONFIRM ✅", callback_data=f"confirm-{web_app_data['user']['id']}"))))
 
 	return redirect("/")
+
+
+@app.route('/captcha-response', methods=['POST'])
+def captcha_response():
+	raw_data = flask.request.json
+	isbot = raw_data["isbot"]
+	initData = raw_data["initData"]
+	attempts = raw_data["attempts"]
+
+	isValid = validate_web_app_data(API_TOKEN, initData)
+
+	if isValid:		
+		if not isbot:
+			web_app_data = parse_web_app_data(API_TOKEN, initData)
+			query_id = web_app_data["query_id"]
+			bot.answer_web_app_query(query_id, InlineQueryResultArticle(
+				id=query_id, title="VERIFICATION PASSED!",
+				input_message_content=InputTextMessageContent(
+					"<b><i>Captcha verification passed ✅\n\
+					\nIt seems that you're indeed a human! 😉</i></b>",
+					parse_mode="HTML"), reply_markup=InlineKeyboardMarkup().row(
+						InlineKeyboardButton("CLICK TO CONFIRM ✅",
+							callback_data=f"confirm-{web_app_data['user']['id']}"))))
+		else:
+			if attempts == 3:
+				web_app_data = parse_web_app_data(API_TOKEN, initData)
+				query_id = web_app_data["query_id"]
+				bot.answer_web_app_query(query_id, InlineQueryResultArticle(
+					id=query_id, title="VERIFICATION FAILED!",
+					input_message_content=InputTextMessageContent(
+						"<b><i>Captcha verification failed ❌\n\
+							\nI don't trust your human side! 🤔</i></b>",
+					parse_mode="HTML"), reply_markup=InlineKeyboardMarkup().row(
+						InlineKeyboardButton("CONTINUE ♻️",
+							callback_data=f"confirm-{web_app_data['user']['id']}"))))
+
+	return redirect("/")		
 
 if __name__ == '__main__':
 	app.run(debug=True)

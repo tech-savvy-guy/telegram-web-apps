@@ -10,6 +10,7 @@ bot = telebot.TeleBot(API_TOKEN, parse_mode="HTML")
 
 web_apps = [
 	{"label" : "Demo Forms", "link" : "https://telegram-web-apps.tk/demo-form"},
+	{"label" : "CAPTCHA", "link" : "https://telegram-web-apps.tk/captcha"},
 ]
 
 @bot.message_handler(commands=["start"])
