@@ -1,12 +1,15 @@
 import os
 import flask
+import base64
 import telebot
+from io import BytesIO
 from flask import request
 from flask import redirect
 from utils import parse_web_app_data
 from utils import validate_web_app_data
 from telebot.types import InlineKeyboardMarkup
 from telebot.types import InlineKeyboardButton
+from telebot.types import InlineQueryResultPhoto
 from telebot.types import InputTextMessageContent
 from telebot.types import InlineQueryResultArticle
 
@@ -33,6 +36,30 @@ def demo_form():
 @app.route('/captcha')
 def captcha():
 	return flask.render_template("captcha.html")
+
+
+@app.route('/paint')
+def paint():
+	return flask.render_template("paint.html")
+
+
+@app.route('/paint-response', methods=["POST"])
+def paint_response():
+	raw_data = flask.request.json
+	imageData = raw_data["imageData"]
+	initData = raw_data["initData"]
+
+	isValid = validate_web_app_data(API_TOKEN, initData)
+
+	if isValid:
+		web_app_data = parse_web_app_data(API_TOKEN, initData)
+		query_id = web_app_data["query_id"]
+		bot.answer_web_app_query(query_id, InlineQueryResultPhoto(
+					id=query_id, photo_url=BytesIO(base64.b64decode(imageData)),
+					reply_markup=InlineKeyboardMarkup().row(InlineKeyboardButton(
+						"CLICK TO CONFIRM ✅", callback_data=f"confirm-{web_app_data['user']['id']}"))))		
+	
+	return base64.encode(base64.b64decode(imageData))	# TODO: Fix download from client side!
 
 
 @app.route('/demo-form-response', methods=["POST"])
