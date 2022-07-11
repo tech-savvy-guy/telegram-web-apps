@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+#canvas {
+  margin: 0 auto;
+  display: flex;
+  text-align: center;
+  box-shadow: 0rem 0rem 0.5rem rgba(0, 0, 0, 0.3);
+  background: white;
+  justify-content: center;
+  align-items: center;
+}
+
+.tool-bar {
+  margin: 2rem 2rem;
+  background: whitesmoke;
+  border-radius: 1rem;
+  box-shadow: 0rem 0rem 0.5rem rgba(0, 0, 0, 0.3);
+  display: flex;
+  padding: 2rem 2rem 2rem 2rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.save-button {
+  display: flex;
+  height: 5rem;
+  width: auto;
+  padding: 0;
+  background: #009578;
+  border: none;
+  outline: none;
+  border-radius: 1rem;
+  overflow: hidden;
+  font-family: "Quicksand", sans-serif;
+  font-size: 2rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0rem 0rem 0.5rem rgba(0, 0, 0, 0.3);
+  margin-left: 3rem;
+}
+
+.save-button:hover {
+  background: #008168;
+}
+
+.save-button:active {
+  background: #006e58;
+}
+
+.save-button-text,
+.save-button-icon {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 2.4rem;
+  color: white;
+  height: 100%;
+}
+
+.save-button-icon {
+  font-size: 1.5em;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.erase-button {
+  display: flex;
+  height: 5rem;
+  width: auto;
+  padding: 0;
+  background: #de0e30;
+  border: none;
+  outline: none;
+  border-radius: 1rem;
+  overflow: hidden;
+  font-family: "Quicksand", sans-serif;
+  font-size: 2rem;
+  font-weight: 500;
+  box-shadow: 0rem 0rem 0.5rem rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  margin-right: 3rem;
+}
+
+.erase-button:hover {
+  background: #ce1414fe;
+}
+
+.erase-button:active {
+  background: #e7203b;
+}
+
+.erase-button-text,
+.erase-button-icon {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 2.4rem;
+  color: white;
+  height: 100%;
+}
+
+.erase-button-icon {
+  font-size: 1.5em;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.stroke {
+  height: 5rem;
+  width: auto;
+  background: #8d3bdefe;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  margin-left: 3rem;
+  box-shadow: 0rem 0rem 0.5rem rgba(0, 0, 0, 0.3);
+}
+
+.stroke .slider {
+    padding: 2rem 2rem 2rem 2rem;
+}
+
+.stroke .stroke-width {
+  margin-right: 2rem;
+  color: white;
+  font-family: "Quicksand", sans-serif;
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+.stroke .slider input {
+  height: 0.8rem;
+  width: 90%;
+  outline: none;
+  background: #f2f2ff;
+  cursor: move;
+  border-radius: 2.5rem;
+  -webkit-appearance: none;
+  box-shadow: 0rem 0rem 0.5rem rgba(0, 0, 0, 0.1);
+
+}
+
+.stroke .slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: none;
+  height: 1.6rem;
+  width: 1.6rem;
+  border-radius: 50%;
+  background: goldenrod;
+}
+
+.color-border {
+  height: 6rem;
+  width: 6rem;
+  border: solid;
+  border-radius: 10rem;
+  align-items: center;
+  position: relative;
+  top: -0.2rem;
+}
+
+.color ion-icon {
+  font-size: 4rem;
+}
+
+.color label {
+  position: relative;
+  top: 0.8rem;
+  left: 0.8rem;
+}
+
+@media(max-width:768px) {
+  html {
+    font-size: 50%;
+  }
+}
+
+@media(max-width:650px) {
+  html {
+    font-size: 40%;
+  }
+
+  .erase-button-text {
+    display: none;
+  }
+
+  .save-button-text {
+    display: none;
+  }
+}
