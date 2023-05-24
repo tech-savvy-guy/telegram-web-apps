@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPTCHA</title>
+    <link rel="shortcut icon" type="image/svg" href="{{url_for('static', filename='telegram.svg')}}">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="{{url_for('static', filename='qrCode/style.css')}}">
+    <!-- <link rel="stylesheet" href="../static/qrCode/style.css"> -->
+</head>
+
+<body>
+    <div class="wrapper">
+        <header>QR SCANNER</header>
+        <button class="scanButton" onclick="window.Telegram.WebApp.showScanQrPopup('SCAN')">SCAN CODE</button>
+    </div>
+    <script src="{{url_for('static', filename='qrCode/script.js')}}"></script>
+    <!-- <script src="../static/qrCode/script.js"></script> -->
+    <script>
+        window.Telegram.WebApp.ready()
+    </script>
+</body>
+
+</html>
