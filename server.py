@@ -43,6 +43,11 @@ def paint():
 	return flask.render_template("paint.html")
 
 
+@app.route('/qrCode')
+def qrCode():
+	return flask.render_template("qrCode.html")
+
+
 @app.route('/paint-response', methods=["POST"])
 def paint_response():
 	raw_data = flask.request.json
