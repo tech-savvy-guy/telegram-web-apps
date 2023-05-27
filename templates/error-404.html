@@ -14,8 +14,8 @@
     <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
     <link id="u-page-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i">
     
-    
-    <script type="application/ld+json">{
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+        <script type="application/ld+json">{
 		"@context": "http://schema.org",
 		"@type": "Organization",
 		"name": "tech-savvy-guy"
@@ -32,5 +32,9 @@
         <a href="/" class="u-active-grey-75 u-black u-border-none u-btn u-btn-round u-button-style u-custom-font u-font-montserrat u-hover-grey-80 u-radius-50 u-text-active-white u-text-body-alt-color u-text-hover-white u-btn-1">RETURN</a>
       </div>
     </section>
+    <script>
+      window.Telegram.WebApp.ready()
+      window.Telegram.WebApp.expand()
+  </script>    
   </body>
 </html>
