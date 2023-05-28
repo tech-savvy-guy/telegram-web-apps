@@ -1,9 +1,9 @@
 Telegram.WebApp.ready()
-
+Telegram.WebApp.expand()
 Telegram.WebApp.onEvent('qrTextReceived', sendData)
 
 function sendData(this, data) {
-  console.log(data);
+  console.log(this, data);
   fetch('/qrCode-response', {
     method: 'POST',
     headers: {
@@ -13,4 +13,3 @@ function sendData(this, data) {
     body: JSON.stringify({ qr: data, initData: window.Telegram.WebApp.initData })
   });
 };
-
