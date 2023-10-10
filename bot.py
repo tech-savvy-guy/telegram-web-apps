@@ -1,36 +1,39 @@
 import os
+import dotenv
+dotenv.load_dotenv()
+
 import telebot
 from telebot.types import WebAppInfo
 from telebot.types import InlineKeyboardMarkup
 from telebot.types import InlineKeyboardButton
 
-API_TOKEN = os.getenv("API_TOKEN")
-
-bot = telebot.TeleBot(API_TOKEN, parse_mode="HTML")
+bot = telebot.TeleBot(os.getenv('API_TOKEN'), parse_mode="HTML")
 
 web_apps = [
-	{"label" : "Demo Forms", "link" : "https://telegram-web-apps.tk/demo-form"},
-	{"label" : "CAPTCHA", "link" : "https://telegram-web-apps.tk/captcha"},
-	{"label" : "Paint", "link" : "https://telegram-web-apps.tk/paint"},
+	{"label" : "Demo Forms", "link" : "https://your-server.domain/demoForm"},
+	{"label" : "CAPTCHA", "link" : "https://your-server.domain/captcha"},
+	{"label" : "QR Code", "link" : "https://your-server.domain/qrCode"},
+	{"label" : "re-CAPTCHA", "link" : "https://your-server.domain/captchav2"},
 ]
 
 @bot.message_handler(commands=["start"])
 def start(message):
 
-	prev_button = InlineKeyboardButton("⬅️", callback_data="web-app:0")
-	next_button = InlineKeyboardButton("➡️", callback_data="web-app:2")
-	web_app_btn = InlineKeyboardButton(web_apps[0]["label"],
-		web_app=WebAppInfo(web_apps[0]["link"]))
+	markup = InlineKeyboardMarkup()
+	markup.row(InlineKeyboardButton(web_apps[0]["label"],
+		web_app=WebAppInfo(web_apps[0]["link"])))
+	markup.row(
+		InlineKeyboardButton("⬅️", callback_data="web-app:0"),
+		InlineKeyboardButton("➡️", callback_data="web-app:2")
+	)
 
-	bot.send_message(message.chat.id, "<b><i>Hey there! 😉\n\
-		\nWanna see some cool Telegram Web Apps? 😎\n\
-		\nBrowse using the butons below 👇🏻</i></b>",
-		reply_markup=InlineKeyboardMarkup().row(
-			prev_button, web_app_btn, next_button))
+	bot.send_message(message.chat.id, "<i>Hey there! "
+		"Wanna see some cool Telegram Web Apps? 🔥\n\n"
+		"Browse using the butons below 👇🏻</i>", reply_markup=markup)
 
 
 @bot.callback_query_handler(func=lambda call: True)
-def callback_listener(call):
+def callback_listener(call): 
 
 	_id, data = call.id, call.data
 
@@ -38,18 +41,22 @@ def callback_listener(call):
 		index = int(data[8:])
 
 		if index == 0:
-			bot.answer_callback_query(_id, "⚠️  Start of list  ⚠️", show_alert=True)
+			bot.answer_callback_query(_id, "Oops! Start of list!", show_alert=True)
 		elif index > len(web_apps):
-			bot.answer_callback_query(_id, "⚠️  End of list  ⚠️", show_alert=True)
+			bot.answer_callback_query(_id, "Oops! End of list!", show_alert=True)
 		else:
 			prev_button = InlineKeyboardButton("⬅️", callback_data=f"web-app:{index-1}")
 			next_button = InlineKeyboardButton("➡️", callback_data=f"web-app:{index+1}")
 			web_app_btn = InlineKeyboardButton(web_apps[index-1]["label"],
 				web_app=WebAppInfo(web_apps[index-1]["link"]))		
 
-			bot.edit_message_reply_markup(call.message.chat.id, call.message.id,
-				reply_markup=InlineKeyboardMarkup().row(
-					prev_button, web_app_btn, next_button))
+			markup = InlineKeyboardMarkup()
+			markup.row(web_app_btn)
+			markup.row(prev_button, next_button)
+
+			bot.edit_message_reply_markup(
+				call.message.chat.id,
+					call.message.id, reply_markup=markup)
 				
 	elif data[:7] == "confirm":
 		bot.send_message(int(data[8:]), "<b><i>Thanks for trying out the WebApp.\n\
@@ -66,4 +73,6 @@ def help(message):
  <a href='https://github.com/TECH-SAVVY-GUY/telegram-web-apps'>GitHub</a>.\n\
 			\nFor any other questions, contact developer ➜ @tech_savvy_guy</i></b>")
 
-bot.infinity_polling(skip_pending=True)
+if __name__ == "__main__":
+	print(f'@{bot.get_me().username} is up and running! 🚀')
+	bot.infinity_polling(skip_pending=True)
