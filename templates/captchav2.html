@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <link rel="stylesheet" href="../static/captchaV2/styles.css">
+    <title>Google Captcha</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Google reCAPTCHA</h1>
+        <form action="/captchav2" method="post">
+            <div class="g-recaptcha" data-sitekey="6Lf5jYcoAAAAAG54HIfhTlrAiBw3R3p6fbFCTEuq"></div>
+            <input type="text" name="initData" id="initData" hidden>
+            <input type="submit" value="Submit" >
+        </form>  
+    </div>
+    <script>
+        Telegram.WebApp.ready()
+        Telegram.WebApp.expand()
+        initData = document.getElementById("initData");
+        initData.value = window.Telegram.WebApp.initData;
+    </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="shortcut icon" type="image/svg" href="../static/telegram.svg">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <link rel="stylesheet" href="../static/form-template/style.css">
+    <title>Form Demo</title>
+    <script>
+        function handleFormData() {
+            var name = document.getElementById("name").value;
+            var date = document.getElementById("date").value;
+            var email = document.getElementById("email").value;
+            var country = document.getElementById("country").value;
+            fetch('/demoFormResponse', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name, date: date,
+                    email: email, country: country,
+                    initData: window.Telegram.WebApp.initData
+                })
+            }
+            )
+        }
+    </script>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="forms">
+            <div class="form signup">
+                <span class="title">Demo Form</span>
+
+                <form onsubmit="handleFormData()">
+                    <div class="input-field">
+                        <input type="text" placeholder="Enter your name" id="name" required>
+                        <i class="uil uil-user"></i>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" placeholder="Enter your email" id="email" required>
+                        <i class="uil uil-envelope icon"></i>
+                    </div>
+                    <div class="input-field">
+                        <input placeholder="Date of birth" type="text" onfocus="(this.type='date')" id="date" required>
+                        <i class="uil uil-calendar-alt"></i>
+                    </div>
+                    <div class="input-field">
+                        <input type="country" class="country" placeholder="Enter your country" id="country" required>
+                        <i class="uil uil-location-point"></i>
+                    </div>
+                    <div class="input-field button">
+                        <input type="submit" value="Continue">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        const container = document.querySelector(".container");
+        container.classList.add("active");
+        Telegram.WebApp.ready()
+        Telegram.WebApp.expand()
+    </script>
+</body>
+
+</html>
