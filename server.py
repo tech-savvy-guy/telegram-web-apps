@@ -1,132 +1,192 @@
 import os
+import dotenv
+import requests
+dotenv.load_dotenv()
+
 import flask
-import base64
-import telebot
-from io import BytesIO
 from flask import request
 from flask import redirect
-from utils import parse_web_app_data
-from utils import validate_web_app_data
+from flask import render_template
+
+import telebot
 from telebot.types import InlineKeyboardMarkup
 from telebot.types import InlineKeyboardButton
-from telebot.types import InlineQueryResultPhoto
 from telebot.types import InputTextMessageContent
 from telebot.types import InlineQueryResultArticle
 
-API_TOKEN = os.getenv("API_TOKEN")
+from telebot.util import parse_web_app_data
+from telebot.util import validate_web_app_data
 
-app = flask.Flask(__name__)
-bot = telebot.TeleBot(API_TOKEN, parse_mode="HTML")
+app = flask.Flask(__name__, static_url_path="/static")
+bot = telebot.TeleBot(os.getenv("API_TOKEN"), parse_mode="HTML")
 
 @app.route('/')
 def index():
-	return "Collection of Web Apps"
+    return "A collection of Telegram Mini Apps"
+
+# ------------------- Demo Form ------------------- #
+
+@app.route('/demoForm')
+def demoForm():
+    return flask.render_template("demoForm.html")
+
+@app.route('/demoFormResponse', methods=["POST"])
+def demoFormResponse():
+    raw_data = request.json
+    name = raw_data["name"]
+    date = raw_data["date"]
+    email = raw_data["email"]
+    country = raw_data["country"]
+    initData = raw_data["initData"]
+
+    isValid = validate_web_app_data(bot.token, initData)
+
+    if isValid:
+        web_app_data = parse_web_app_data(bot.token, initData)
+        query_id = web_app_data["query_id"]
+        bot.answer_web_app_query(query_id, InlineQueryResultArticle(
+            id=query_id, title="VERIFICATION FAILED!",
+            	input_message_content=InputTextMessageContent(
+                	f"<i>Demo Form:\n\nName: {name}\n\nBorn: {date}\n\
+					\nEmail: {email}\n\nCountry: {country}</i>", parse_mode="HTML"),
+            			reply_markup=InlineKeyboardMarkup().row(InlineKeyboardButton(
+                			"CLICK TO CONTINUE ✅", callback_data=f"confirm-{web_app_data['user']['id']}"))))
+
+    return redirect("/")
+
+# ------------------- Demo Form ------------------- #
 
 
-@app.errorhandler(404)
-def error_404(e):
-	return flask.render_template("error-404.html")
-
-
-@app.route('/demo-form')
-def demo_form():
-	return flask.render_template("demo-form.html")
-
+# ------------------- Text Captcha ------------------- #
 
 @app.route('/captcha')
 def captcha():
-	return flask.render_template("captcha.html")
+    return flask.render_template("captcha.html")
+
+@app.route('/captchaResponse', methods=['POST'])
+def captchaResponse():
+    raw_data = flask.request.json
+    isbot = raw_data["isbot"]
+    initData = raw_data["initData"]
+    attempts = raw_data["attempts"]
+
+    isValid = validate_web_app_data(bot.token, initData)
+
+    if isValid:
+        if not isbot:
+            web_app_data = parse_web_app_data(bot.token, initData)
+            query_id = web_app_data["query_id"]
+            bot.answer_web_app_query(query_id, InlineQueryResultArticle(
+                id=query_id, title="VERIFICATION PASSED!",
+                input_message_content=InputTextMessageContent(
+                    "<i>Captcha verification passed ✅\n\
+					\nIt seems that you're indeed a human! 😉</i>",
+                    parse_mode="HTML"), reply_markup=InlineKeyboardMarkup().row(
+                        InlineKeyboardButton("CLICK TO CONTINUE ✅",
+                            callback_data=f"confirm-{web_app_data['user']['id']}"))))
+        else:
+            if attempts == 3:
+                web_app_data = parse_web_app_data(bot.token, initData)
+                query_id = web_app_data["query_id"]
+                bot.answer_web_app_query(query_id, InlineQueryResultArticle(
+                    id=query_id, title="VERIFICATION FAILED!",
+                    input_message_content=InputTextMessageContent(
+                        "<i>Captcha verification failed ❌\n\
+							\nI don't trust your human side! 🤔</i>",
+                        parse_mode="HTML"), reply_markup=InlineKeyboardMarkup().row(
+                        InlineKeyboardButton("CLICK TO CONTINUE ✅",
+                            callback_data=f"confirm-{web_app_data['user']['id']}"))))
+
+    return redirect("/")
+
+# ------------------- Text Captcha ------------------- #
 
 
-@app.route('/paint')
-def paint():
-	return flask.render_template("paint.html")
-
+# ------------------- QR Code Scanner ------------------- #
 
 @app.route('/qrCode')
 def qrCode():
-	return flask.render_template("qrCode.html")
+    return flask.render_template("qrCode.html")
+
+@app.route('/qrCodeResponse', methods=["POST"])
+def qrCodeResponse():
+    raw_data = flask.request.json
+    initData = raw_data["initData"]
+
+    isValid = validate_web_app_data(bot.token, initData)
+
+    if isValid:
+        web_app_data = parse_web_app_data(bot.token, initData)
+
+        query_id = web_app_data["query_id"]
+
+        bot.answer_web_app_query(query_id, InlineQueryResultArticle(
+            id=query_id, title="QR DETECTED!",
+            input_message_content=InputTextMessageContent(
+                f"<i>QR Code scanned successfully! 👇🏻\n\
+				\n{raw_data['qr']}</i>", parse_mode="HTML"),
+            reply_markup=InlineKeyboardMarkup().row(
+                InlineKeyboardButton("CLICK TO CONTINUE ✅",
+                                     callback_data=f"confirm-{web_app_data['user']['id']}"))))
+
+    return redirect("/")
+
+# ------------------- QR Code Scanner ------------------- #
 
 
-@app.route('/paint-response', methods=["POST"])
-def paint_response():
-	raw_data = flask.request.json
-	imageData = raw_data["imageData"]
-	initData = raw_data["initData"]
+# ------------------- Google re-CAPTCHA ------------------- #
 
-	isValid = validate_web_app_data(API_TOKEN, initData)
+@app.route('/captchav2', methods=["GET", "POST"])
+def captchaV2():
 
-	if isValid:
-		web_app_data = parse_web_app_data(API_TOKEN, initData)
-		query_id = web_app_data["query_id"]
-		bot.answer_web_app_query(query_id, InlineQueryResultPhoto(
-					id=query_id, photo_url=BytesIO(base64.b64decode(imageData)),
-					reply_markup=InlineKeyboardMarkup().row(InlineKeyboardButton(
-						"CLICK TO CONFIRM ✅", callback_data=f"confirm-{web_app_data['user']['id']}"))))		
-	
-	return base64.encode(base64.b64decode(imageData))	# TODO: Fix download from client side!
+    if request.method == 'POST':
 
+        recaptcha_response = request.form.get('g-recaptcha-response')
 
-@app.route('/demo-form-response', methods=["POST"])
-def demo_form_response():
-	raw_data = request.json
-	name = raw_data["name"]
-	date = raw_data["date"]
-	email = raw_data["email"]
-	country = raw_data["country"]
-	initData = raw_data["initData"]
+        data = {
+            'secret': os.getenv("SECRET_KEY"),
+            'response': recaptcha_response
+        }
+        response = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify', data=data)
+        result = response.json()
 
-	isValid = validate_web_app_data(API_TOKEN, initData)
+        raw_data = request.form
+        initData = raw_data["initData"]
 
-	if isValid:
-		web_app_data = parse_web_app_data(API_TOKEN, initData)
-		query_id = web_app_data["query_id"]
-		bot.answer_web_app_query(query_id, InlineQueryResultArticle(
-					id=query_id, title="VERIFICATION FAILED!",
-					input_message_content=InputTextMessageContent(
-						f"<b><i>Demo Form:\n\nName: {name}\n\nBorn: {date}\n\
-							\nEmail: {email}\n\nCountry: {country}</i></b>", parse_mode="HTML"),
-					reply_markup=InlineKeyboardMarkup().row(InlineKeyboardButton(
-						"CLICK TO CONFIRM ✅", callback_data=f"confirm-{web_app_data['user']['id']}"))))
+        isValid = validate_web_app_data(bot.token, initData)
 
-	return redirect("/")
+        if isValid:
 
+            web_app_data = parse_web_app_data(bot.token, initData)
+            query_id = web_app_data["query_id"]
 
-@app.route('/captcha-response', methods=['POST'])
-def captcha_response():
-	raw_data = flask.request.json
-	isbot = raw_data["isbot"]
-	initData = raw_data["initData"]
-	attempts = raw_data["attempts"]
+            if result['success']:
+                bot.answer_web_app_query(query_id, InlineQueryResultArticle(
+                    id=query_id, title="VERIFICATION PASSED!",
+                    input_message_content=InputTextMessageContent(
+                        "<b><i>Captcha verification passed ✅\n\
+					        \nIt seems that you're indeed a human! 😉</i></b>",
+                        parse_mode="HTML"), reply_markup=InlineKeyboardMarkup().row(
+                        InlineKeyboardButton("CLICK TO CONTINUE ✅",
+                                             callback_data=f"confirm-{web_app_data['user']['id']}"))))
+            else:
 
-	isValid = validate_web_app_data(API_TOKEN, initData)
-
-	if isValid:		
-		if not isbot:
-			web_app_data = parse_web_app_data(API_TOKEN, initData)
-			query_id = web_app_data["query_id"]
-			bot.answer_web_app_query(query_id, InlineQueryResultArticle(
-				id=query_id, title="VERIFICATION PASSED!",
-				input_message_content=InputTextMessageContent(
-					"<b><i>Captcha verification passed ✅\n\
-					\nIt seems that you're indeed a human! 😉</i></b>",
-					parse_mode="HTML"), reply_markup=InlineKeyboardMarkup().row(
-						InlineKeyboardButton("CLICK TO CONFIRM ✅",
-							callback_data=f"confirm-{web_app_data['user']['id']}"))))
-		else:
-			if attempts == 3:
-				web_app_data = parse_web_app_data(API_TOKEN, initData)
-				query_id = web_app_data["query_id"]
-				bot.answer_web_app_query(query_id, InlineQueryResultArticle(
-					id=query_id, title="VERIFICATION FAILED!",
-					input_message_content=InputTextMessageContent(
-						"<b><i>Captcha verification failed ❌\n\
+                bot.answer_web_app_query(query_id, InlineQueryResultArticle(
+                    id=query_id, title="VERIFICATION FAILED!",
+                    input_message_content=InputTextMessageContent(
+                        "<b><i>Captcha verification failed ❌\n\
 							\nI don't trust your human side! 🤔</i></b>",
-					parse_mode="HTML"), reply_markup=InlineKeyboardMarkup().row(
-						InlineKeyboardButton("CONTINUE ♻️",
-							callback_data=f"confirm-{web_app_data['user']['id']}"))))
+                        parse_mode="HTML"), reply_markup=InlineKeyboardMarkup().row(
+                        InlineKeyboardButton("CLICK TO CONTINUE ✅",
+                                             callback_data=f"confirm-{web_app_data['user']['id']}"))))
 
-	return redirect("/")		
+        return redirect("/")
+
+    return render_template('captchav2.html')
+
+# ------------------- Google re-CAPTCHA ------------------- #
+
 
 if __name__ == '__main__':
-	app.run(debug=True)
+    app.run(host='0.0.0.0')
