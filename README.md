@@ -16,6 +16,6 @@ All the Web Apps are designed using **[pyTelegramBotAPI](https://github.com/eter
 
 The main purpose for this project is to help new-comers to start designing their own Mini Apps!
 
-**_If you like this project, kindly give a star! ⭐_**
+**If you like this project, kindly give a star! ⭐**
 
-**_Contributions are welcome! 😇_**
+**Contributions are welcome! 😇**
